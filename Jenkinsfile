@@ -1,8 +1,8 @@
 pipeline {
     agent any
     tools {
-        maven 'Maven-3.9' 
-        jdk 'JDK-17' 
+        maven 'Maven-3.9'
+        jdk 'JDK-17'
     }
     stages {
         stage('Checkout') {
@@ -12,7 +12,7 @@ pipeline {
         }
         stage('Compile and Test') {
             steps {
-                sh 'mvn -B -ntp -Dmaven.test.failure.ignore verify'
+                bat 'mvn -B -ntp -Dmaven.test.failure.ignore verify'
             }
         }
         stage('Publish Test Results') {
