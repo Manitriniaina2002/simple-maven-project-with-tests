@@ -7,7 +7,7 @@ pipeline {
     
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('DOCKER_HUB_CREDENTIALS')
-        DOCKER_IMAGE_NAME = 'your-dockerhub-username/your-app-name'
+        DOCKER_IMAGE_NAME = 'manitriniaina2002/maven-project'
         DOCKER_TAG = "${env.BUILD_NUMBER}"
     }
     
