@@ -42,13 +42,17 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    // Login to DockerHub and push the image
-                    bat """
-                        echo ${DOCKER_HUB_CREDENTIALS_PSW} | docker login -u ${DOCKER_HUB_CREDENTIALS_USR} --password-stdin
-                        docker push ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
-                        docker push ${DOCKER_IMAGE_NAME}:latest
-                        docker logout
-                    """
+                    // Use withCredentials to securely handle credentials
+                    withCredentials([usernamePassword(credentialsId: 'DOCKER_HUB_CREDENTIALS', 
+                                                    usernameVariable: 'DOCKER_USERNAME', 
+                                                    passwordVariable: 'DOCKER_PASSWORD')]) {
+                        bat '''
+                            echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin
+                            docker push %DOCKER_IMAGE_NAME%:%DOCKER_TAG%
+                            docker push %DOCKER_IMAGE_NAME%:latest
+                            docker logout
+                        '''
+                    }
                 }
             }
         }
@@ -58,10 +62,11 @@ pipeline {
         always {
             // Clean up local Docker images to save space
             script {
-                bat """
-                    docker rmi ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} || true
-                    docker rmi ${DOCKER_IMAGE_NAME}:latest || true
-                """
+                bat '''
+                    docker rmi %DOCKER_IMAGE_NAME%:%DOCKER_TAG% 2>nul || echo "Image already removed"
+                    docker rmi %DOCKER_IMAGE_NAME%:latest 2>nul || echo "Latest image already removed"
+                    docker system prune -f
+                '''
             }
         }
         success {
